@@ -4,65 +4,48 @@ import os
 import numpy as np
 
 def preprocess_image(image_path, target_size=(512, 512)):
-    """
-    Carica l'immagine, la ridimensiona e applica il rilevamento dei bordi.
-    """
     image = cv2.imread(image_path)
     image_resized = cv2.resize(image, target_size)
     gray_image = cv2.cvtColor(image_resized, cv2.COLOR_BGR2GRAY)
     edges = cv2.Canny(gray_image, 100, 200)
-    combined = np.dstack((image_resized, edges))
+    edges_colored = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
+    combined = np.concatenate((image_resized, edges_colored), axis=2)
     return combined
 
-def preprocess_and_save_images(csv_file, base_dir, output_dirs, target_size=(512, 512)):
-    """
-    Legge le immagini dal CSV, le preelabora e salva i risultati.
-    """
-    # Crea le directory di output se non esistono già
-    for output_dir in output_dirs.values():
-        os.makedirs(output_dir, exist_ok=True)
-
-    # Carica il file CSV
-    df = pd.read_csv(csv_file)
+def preprocess_and_save_images(csv_file, images_base_dir, output_dirs, column_names, target_size=(512, 512)):
+    os.makedirs(output_dirs, exist_ok=True)  # Assicurati che la directory di output esista
+    df = pd.read_csv(csv_file, names=column_names)
     
-    # Processa ogni riga del CSV
     for index, row in df.iterrows():
-        for col, image_path in row.items():
-            full_image_path = os.path.join(base_dir, image_path)
+        for col, img_path in zip(column_names, row):
+            full_image_path = os.path.join(images_base_dir, img_path)
             if os.path.exists(full_image_path):
-                preprocessed_image = preprocess_image(full_image_path, target_size)
-                output_path = os.path.join(output_dirs[col], os.path.basename(image_path))
-                cv2.imwrite(output_path, preprocessed_image)
+                processed_image = preprocess_image(full_image_path, target_size)
+                output_path = os.path.join(output_dirs, os.path.basename(img_path))
+                cv2.imwrite(output_path, processed_image)
             else:
                 print(f"Image not found: {full_image_path}")
 
 if __name__ == "__main__":
-    # Percorsi
-    base_dir = '/home/mbrapa/University/CV_project/CVUSA_subset'
+    base_dir = '../CVUSA_subset'
+    csv_dir = os.path.join(base_dir, 'csv')  # Aggiungi una sottocartella per i file CSV se necessario
     
-    output_dirs_train = {
-        'bingmap': os.path.join(base_dir, 'preprocessed_bingmap_train'),
-        'streetview_1': os.path.join(base_dir, 'preprocessed_streetview_train'),
-        'streetview_2': os.path.join(base_dir, 'preprocessed_streetview_train_2')
-    }
-    
-    output_dirs_val = {
-        'bingmap': os.path.join(base_dir, 'preprocessed_bingmap_val'),
-        'streetview_1': os.path.join(base_dir, 'preprocessed_streetview_val'),
-        'streetview_2': os.path.join(base_dir, 'preprocessed_streetview_val_2')
-    }
+    output_base = '../processed_images'  # Cartella base per le immagini processate
+    output_dirs_train = os.path.join(output_base, 'train')
+    output_dirs_val = os.path.join(output_base, 'val')
 
-    # Preprocessamento e salvataggio delle immagini
     preprocess_and_save_images(
-        csv_file=os.path.join(base_dir, 'train-19zl.csv'),
-        base_dir=base_dir,
+        csv_file=os.path.join(csv_dir, 'train-19zl.csv'),
+        images_base_dir=base_dir,
         output_dirs=output_dirs_train,
+        column_names=['bingmap', 'streetview_1', 'streetview_2'],
         target_size=(512, 512)
     )
     preprocess_and_save_images(
-        csv_file=os.path.join(base_dir, 'val-19zl.csv'),
-        base_dir=base_dir,
+        csv_file=os.path.join(csv_dir, 'val-19zl.csv'),
+        images_base_dir=base_dir,
         output_dirs=output_dirs_val,
+        column_names=['bingmap', 'streetview_1', 'streetview_2'],
         target_size=(512, 512)
     )
 
