@@ -20,6 +20,8 @@ def calculate_mean_std(image_tensor):
     
     return mean, std
 
+
+
 def calculate_folder_mean_std(folder_path):
     """
     Calcola la media e la deviazione standard per ogni cartella.
@@ -51,3 +53,7 @@ def calculate_folder_mean_std(folder_path):
     dataset_std = std_sum / num_images
     
     return dataset_mean, dataset_std
+
+
+# folder = 'path to folder' es: folder = 'streetview'
+# streetview_mean, streetview_std = calculate_folder_mean_std(folder)
