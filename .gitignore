@@ -8,3 +8,4 @@ venv/
 # Ignore dataset folder
 CVUSA_subset/
 
+X-Fork/CV/
