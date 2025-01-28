@@ -8,9 +8,35 @@ from torch.utils.data import DataLoader
 from generator import Generator
 from discriminator import Discriminator
 
+# Potremmo fare di meglio
 def get_loss():
-    """Returns Binary cross-entropy as loss."""
-    return nn.BCELoss()
+    """Returns L1 as loss."""
+    return nn.L1Loss()
+
+# 
+# class GeneratorLoss(nn.Module):
+#     def __init__(self, lambda_l1=100):
+#         super(GeneratorLoss, self).__init__()
+#         self.adversarial_loss = nn.BCELoss()  # Per la GAN Loss
+#         self.l1_loss = nn.L1Loss()  # Per la ricostruzione
+#         self.lambda_l1 = lambda_l1
+
+#     def forward(self, discriminator_output, generated_image, target_image):
+#         adversarial_loss = self.adversarial_loss(discriminator_output, torch.ones_like(discriminator_output))
+#         l1_loss = self.l1_loss(generated_image, target_image)
+#         return adversarial_loss + self.lambda_l1 * l1_loss
+
+# def get_loss():
+#     """Returns combined adversarial + L1 loss."""
+#     return GeneratorLoss(lambda_l1=100)
+
+
+# e nel train loop:
+
+# loss_fn = get_loss()
+# loss = loss_fn(discriminator(fake_imgs), fake_imgs, real_imgs)
+
+
 
 def get_device():
     """Returns CUDA if CUDA-supporting GPU available for use, else CPU."""
