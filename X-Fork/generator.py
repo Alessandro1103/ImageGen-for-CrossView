@@ -44,6 +44,8 @@ class Generator(nn.Module):
 
         batch_size = x.shape[0]
 
+        assert x.shape == (batch_size, 4, 224, 1232), f"Unexpected shape for the image: {x.shape}"
+
         # Encoder forward
         e1 = self.encoder1(x)
         e2 = self.encoder2(e1)
@@ -59,7 +61,7 @@ class Generator(nn.Module):
         # Controllo la dimensione del bottleneck
         bottleneck_reshaped = bottleneck.view(batch_size, 512, 2, 2)
 
-        assert bottleneck_reshaped.shape == (1, 512, 2, 2), f"Unexpected shape for bottleneck_reshaped: {bottleneck_reshaped.shape}"
+        assert bottleneck_reshaped.shape == (batch_size, 512, 2, 2), f"Unexpected shape for bottleneck_reshaped: {bottleneck_reshaped.shape}"
 
         # Decoder forward (senza skip connections)
         d1 = self.decoder1(bottleneck_reshaped)
@@ -83,7 +85,7 @@ class Generator(nn.Module):
 if __name__ == "__main__":
     input_channels = 4
     output_channels = 3
-    batch_size = 1
+    batch_size = 3
     input_tensor = torch.randn(batch_size, input_channels, 224, 1232)
 
     model = Generator(input_channels, output_channels)
