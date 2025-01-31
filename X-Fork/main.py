@@ -6,6 +6,9 @@ from torch import cuda
 from torch.utils.data import DataLoader, random_split
 import os
 import cv2
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 
 from generator import Generator
 from discriminator import Discriminator
@@ -48,10 +51,10 @@ def get_data_loader(root_folder, batch_size=32, shuffle=True, num_workers=4, spl
 def main():
 
     device = get_device()
-    train_loader, val_loader, test_loader = get_data_loader("./CVUSA_subset", batch_size=32, shuffle=True, num_workers=4)
+    train_loader, val_loader, test_loader = get_data_loader("./../CVUSA_subset", batch_size=32, shuffle=True, num_workers=4)
 
-    generator = Generator().to(device)
-    discriminator = Discriminator().to(device)
+    generator = Generator(input_channels=4, output_channels=3).to(device) # 4 canali in input (img + seg), 3 canali in output (img)
+    discriminator = Discriminator(input_channels=6).to(device) # 6 canali in input (img reale + img generata), 1 canale in output
 
     lr, b1, b2 = 0.0002, 0.5, 0.999
     g_optim = get_optimizer(generator, lr, b1, b2)
@@ -75,20 +78,26 @@ def main():
             fake = torch.zeros((batch_size, 1), device=device)
             imgs_sat = imgs_sat.to(device)
             imgs_street = imgs_street.to(device)
-            
+
             # Train the generator
             g_optim.zero_grad()
             noise = torch.randn(batch_size, 4, 224, 1232).to(device)
             fake_imgs, _ = generator(noise)
-            g_loss = loss(discriminator(fake_imgs), real)
+            
+            # Concateniamo le immagini lungo il canale per il discriminatore
+            real_input = torch.cat((imgs_sat, imgs_street), dim=1)  # Concatenazione reale (6 canali)
+            fake_input = torch.cat((imgs_sat, fake_imgs), dim=1)  # Concatenazione fake (6 canali)
+
+            # Loss del generatore
+            g_loss = loss(discriminator(fake_input), real)
             g_loss.backward()
             g_optim.step()        
             mean_g_loss += g_loss.item()
             
             # Train the discriminator
             d_optim.zero_grad()
-            fake_loss = loss(discriminator(fake_imgs.detach()), fake)
-            real_loss = loss(discriminator(imgs_street), real)
+            fake_loss = loss(discriminator(fake_input.detach()), fake)
+            real_loss = loss(discriminator(real_input), real)
             d_loss = (fake_loss + real_loss) / 2
             d_loss.backward()
             d_optim.step()
