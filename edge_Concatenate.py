@@ -28,6 +28,12 @@ def concatenate_images(image, edgeImg):
     else:
         edgeImg_np = edgeImg
 
+    # Ensure both are uint8
+    edgeImg_np = edgeImg_np.astype(np.uint8)
+
+    # Expand dimensions and concatenate
     edgeImg_np = np.expand_dims(edgeImg_np, axis=-1)
     concatenated = np.concatenate((image_np, edgeImg_np), axis=-1)
+
     return concatenated
+
