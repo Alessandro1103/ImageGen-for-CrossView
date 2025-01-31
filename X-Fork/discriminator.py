@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 
 class Discriminator(nn.Module):
-    def __init__(self, input_channels):
+    def __init__(self, input_channels = 6):
         super(Discriminator, self).__init__()
 
         self.encoder1 = EncoderBlock(input_channels, 64)
