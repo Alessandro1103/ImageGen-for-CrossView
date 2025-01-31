@@ -41,52 +41,41 @@ class Generator(nn.Module):
    
 
     def forward(self, x):
+
+        batch_size = x.shape[0]
+
         # Encoder forward
         e1 = self.encoder1(x)
-        print(f"e1 shape: {e1.shape}")
         e2 = self.encoder2(e1)
-        print(f"e2 shape: {e2.shape}")
         e3 = self.encoder3(e2)
-        print(f"e3 shape: {e3.shape}")
         e4 = self.encoder4(e3)
-        print(f"e4 shape: {e4.shape}")
         e5 = self.encoder5(e4)
-        print(f"e5 shape: {e5.shape}")
         e6 = self.encoder6(e5)
-        print(f"e6 shape: {e6.shape}")
         e7 = self.encoder7(e6)
-        print(f"e7 shape: {e7.shape}")
         bottleneck = self.encoder8(e7)
 
+        assert bottleneck.shape == (batch_size, 512, 1, 4), f"Unexpected shape for bottleneck: {bottleneck.shape}"
+
         # Controllo la dimensione del bottleneck
-        print(f"Bottleneck shape: {bottleneck.shape}")
-        bottleneck_reshaped = bottleneck.view(1, 512, 2, 2)
-        print(f"Bottleneck reshaped shape: {bottleneck_reshaped.shape}")
+        bottleneck_reshaped = bottleneck.view(batch_size, 512, 2, 2)
+
+        assert bottleneck_reshaped.shape == (1, 512, 2, 2), f"Unexpected shape for bottleneck_reshaped: {bottleneck_reshaped.shape}"
 
         # Decoder forward (senza skip connections)
         d1 = self.decoder1(bottleneck_reshaped)
-        print(f"d1 shape: {d1.shape}")
         d2 = self.decoder2(d1)
-        print(f"d2 shape: {d2.shape}")
         d3 = self.decoder3(d2)
-        print(f"d3 shape: {d3.shape}")
         d4 = self.decoder4(d3)
-        print(f"d4 shape: {d4.shape}")
         d5 = self.decoder5(d4)
-        print(f"d5 shape: {d5.shape}")
         d6 = self.decoder6(d5)
-        print(f"d6 shape: {d6.shape}")
         d7 = self.decoder7(d6)
-
-        # Controllo dimensione prima dell'ultimo upsampling
-        print(f"Final feature map before upsampling: {d7.shape}")
 
         # Independent decoders forward
         streetview_img = self.decoder8_img(d7)
         streetview_seg = self.decoder8_seg(d7)
 
-        print(f"Output image shape: {streetview_img.shape}")
-        print(f"Output segmentation shape: {streetview_seg.shape}")
+        assert streetview_img.shape == (batch_size, 3, 512, 512), f"Unexpected shape for streetview_img: {streetview_img.shape}"
+        assert streetview_seg.shape == (batch_size, 1, 512, 512), f"Unexpected shape for streetview_seg: {streetview_seg.shape}"
 
         return streetview_img, streetview_seg
 
