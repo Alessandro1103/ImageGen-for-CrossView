@@ -16,7 +16,6 @@ def get_loss():
     """Returns L1 as loss."""
     return nn.L1Loss()
 
-
 def get_device():
     """Returns CUDA if CUDA-supporting GPU available for use, else CPU."""
     return "cuda" if cuda.is_available() else "cpu"

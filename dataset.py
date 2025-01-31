@@ -71,56 +71,51 @@ class ImageDataset(torch.utils.data.Dataset):
 
 
 
-def test():
-    dataset = ImageDataset("./CVUSA_subset")
-    image_sat, image_street = dataset[0]
+dataset = ImageDataset("./CVUSA_subset")
+image_sat, image_street = dataset[0]
 
-    # Le immagini PyTorch hanno shape (C, H, W) → dobbiamo convertirle in (H, W, C) per Matplotlib
-    image_sat = image_sat.permute(1, 2, 0).cpu().numpy()
-    image_street = image_street.permute(1, 2, 0).cpu().numpy()
+# Le immagini PyTorch hanno shape (C, H, W) → dobbiamo convertirle in (H, W, C) per Matplotlib
+image_sat = image_sat.permute(1, 2, 0).cpu().numpy()
+image_street = image_street.permute(1, 2, 0).cpu().numpy()
 
-    # Denormalizziamo per riportare i valori nell'intervallo [0,1]
-    # image_sat = (image_sat * 0.5) + 0.5
-    # image_street = (image_street * 0.5) + 0.5
+# Denormalizziamo per riportare i valori nell'intervallo [0,1]
+# image_sat = (image_sat * 0.5) + 0.5
+# image_street = (image_street * 0.5) + 0.5
 
-    print(f"Satellite Image shape: {image_sat.shape}")
-    print(f"Street View Image shape: {image_street.shape}")
+print(f"Satellite Image shape: {image_sat.shape}")
+print(f"Street View Image shape: {image_street.shape}")
 
-    # Creiamo una figura con due subplot per le due immagini
-    plt.figure(figsize=(10, 5))
+# Creiamo una figura con due subplot per le due immagini
+plt.figure(figsize=(10, 5))
 
-    # Mostra l'immagine satellitare
-    plt.subplot(1, 2, 1)
-    plt.imshow(image_sat)
-    plt.title("Satellite Image")
-    plt.axis("off")
+# Mostra l'immagine satellitare
+plt.subplot(1, 2, 1)
+plt.imshow(image_sat)
+plt.title("Satellite Image")
+plt.axis("off")
 
-    # Mostra l'immagine street view
-    plt.subplot(1, 2, 2)
-    plt.imshow(image_street[:,:,:3])
-    plt.title("Street View Image")
-    plt.axis("off")
+# Mostra l'immagine street view
+plt.subplot(1, 2, 2)
+plt.imshow(image_street[:,:,:3])
+plt.title("Street View Image")
+plt.axis("off")
 
-    # Mostra il plot
-    plt.show()
+# Mostra il plot
+plt.show()
 
-    # Split del dataset in Train (70%), Test (15%), Validation (15%)
-    test_size = 0.15
-    val_size = 0.15
+# Split del dataset in Train (70%), Test (15%), Validation (15%)
+test_size = 0.15
+val_size = 0.15
 
-    test_amount = int(len(dataset) * test_size)
-    val_amount = int(len(dataset) * val_size)
+test_amount = int(len(dataset) * test_size)
+val_amount = int(len(dataset) * val_size)
 
-    train_set, val_set, test_set = torch.utils.data.random_split(dataset, [
-        len(dataset) - (test_amount + val_amount),
-        test_amount,
-        val_amount
-    ])
+train_set, val_set, test_set = torch.utils.data.random_split(dataset, [
+    len(dataset) - (test_amount + val_amount),
+    test_amount,
+    val_amount
+])
 
-    print(f"Train set: {len(train_set)}")
-    print(f"Validation set: {len(val_set)}")
-    print(f"Test set: {len(test_set)}")
-
-
-if __name__ == "__main__":
-    test()
+print(f"Train set: {len(train_set)}")
+print(f"Validation set: {len(val_set)}")
+print(f"Test set: {len(test_set)}")
