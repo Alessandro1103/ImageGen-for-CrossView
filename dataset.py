@@ -4,6 +4,7 @@ import cv2
 import matplotlib.pyplot as plt
 import torchvision.transforms as transforms
 from PIL import Image  # Importiamo PIL per garantire la compatibilità con ToTensor()
+from edge_Concatenate import apply_canny, concatenate_images
 
 
 class ImageDataset(torch.utils.data.Dataset):
@@ -21,7 +22,7 @@ class ImageDataset(torch.utils.data.Dataset):
 
         self.transform = transforms.Compose([
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+            # transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
         ])
 
     def __getitem__(self, idx):
@@ -36,6 +37,11 @@ class ImageDataset(torch.utils.data.Dataset):
         image_sat = cv2.cvtColor(image_sat, cv2.COLOR_BGR2RGB)
         image_street = cv2.cvtColor(image_street, cv2.COLOR_BGR2RGB)
 
+        edge_street_img = apply_canny(image_street)
+
+        # Combina la street view con il bordo
+        image_street = concatenate_images(image_street, edge_street_img)
+
         # Converte le immagini in formato PIL perché ToTensor() lavora meglio con PIL
         image_sat = Image.fromarray(image_sat)
         image_street = Image.fromarray(image_street)
@@ -45,7 +51,7 @@ class ImageDataset(torch.utils.data.Dataset):
         image_street = self.transform(image_street)
 
         assert image_sat.shape[0] == 3, f"Immagine non a 3 colori: {image_sat.shape[0]}"
-        assert image_street.shape[0] == 3, f"Immagine non a 3 colori: {image_street.shape[0]}"
+        assert image_street.shape[0] == 4, f"Immagine non a 3 colori + bordo: {image_street.shape[0]}"
 
         resize_transform_sat = transforms.Resize((512, 512))
         if image_sat.shape[1:] != (512, 512):
@@ -53,10 +59,10 @@ class ImageDataset(torch.utils.data.Dataset):
 
         resize_transform_street = transforms.Resize((224, 1232))
         if image_street.shape[1:] != (224, 1232):
-            image_street = resize_transform_street(image_street)
+            image_street = resize_transform_street(image_street)        
 
         assert image_sat.shape == torch.Size([3,512,512]), f"Shape errata: {image_sat.shape}"
-        assert image_street.shape == torch.Size([3,224,1232]), f"Shape errata: {image_street.shape}"
+        assert image_street.shape == torch.Size([4,224,1232]), f"Shape errata: {image_street.shape}"
 
         return image_sat, image_street
 
@@ -74,8 +80,11 @@ def test():
     image_street = image_street.permute(1, 2, 0).cpu().numpy()
 
     # Denormalizziamo per riportare i valori nell'intervallo [0,1]
-    image_sat = (image_sat * 0.5) + 0.5
-    image_street = (image_street * 0.5) + 0.5
+    # image_sat = (image_sat * 0.5) + 0.5
+    # image_street = (image_street * 0.5) + 0.5
+
+    print(f"Satellite Image shape: {image_sat.shape}")
+    print(f"Street View Image shape: {image_street.shape}")
 
     # Creiamo una figura con due subplot per le due immagini
     plt.figure(figsize=(10, 5))
@@ -88,7 +97,7 @@ def test():
 
     # Mostra l'immagine street view
     plt.subplot(1, 2, 2)
-    plt.imshow(image_street)
+    plt.imshow(image_street[:,:,:3])
     plt.title("Street View Image")
     plt.axis("off")
 

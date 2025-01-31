@@ -70,6 +70,7 @@ def main():
         mean_g_loss = 0
         mean_d_loss = 0
         for imgs_sat, imgs_street in tqdm.tqdm(train_loader):
+            
             batch_size = imgs_sat.shape[0] # anche imgs_street.shape[0] va bene
             real = torch.ones((batch_size, 1), device=device)
             fake = torch.zeros((batch_size, 1), device=device)
