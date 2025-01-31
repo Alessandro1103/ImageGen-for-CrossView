@@ -91,21 +91,17 @@ class Generator(nn.Module):
         return streetview_img, streetview_seg
 
     
-
-# Test function
-def test_generator():
+if __name__ == "__main__":
     input_channels = 4
     output_channels = 3
     batch_size = 1
     input_tensor = torch.randn(batch_size, input_channels, 224, 1232)
-    
+
     model = Generator(input_channels, output_channels)
     output_img, output_seg = model(input_tensor)
-    
+
     assert output_img.shape == (batch_size, output_channels, 512, 512), f"Unexpected shape for output_img: {output_img.shape}"
     assert output_seg.shape == (batch_size, 1, 512, 512), f"Unexpected shape for output_seg: {output_seg.shape}"
-    
+
     print("Test passed: Generator outputs correct shapes.")
 
-# Run test
-test_generator()

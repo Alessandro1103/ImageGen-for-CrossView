@@ -42,7 +42,7 @@ class Discriminator(nn.Module):
         return out
 
 
-def test():
+if __name__ == "__main__":
     input_channels = 6  # 3 per immagine reale + 3 per immagine generata
     batch_size = 1 
     input_image = torch.randn(batch_size, input_channels, 512, 512)
@@ -52,5 +52,3 @@ def test():
     assert output.shape == (batch_size, 1, 1, 1), f"Unexpected shape for discriminator output: {output.shape}"
 
     print("Test passed: Discriminator outputs correct shape.")
-
-test()
