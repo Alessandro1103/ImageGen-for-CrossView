@@ -38,6 +38,9 @@ def get_data_loader(root_folder, batch_size=32, shuffle=True, num_workers=4, spl
     return train_loader, val_loader, test_loader
 
 def main():
+    # Attiviamo il rilevamento delle anomalie per il debug (per identificare errori in-place)
+    torch.autograd.set_detect_anomaly(True)
+
     device = get_device()
     train_loader, val_loader, test_loader = get_data_loader("./../CVUSA_subset", batch_size=32, shuffle=True, num_workers=4)
 
@@ -74,50 +77,42 @@ def main():
             # Aggiorna i tensori reali/fake alla dimensione del batch attuale
             real_resized = real[:batch_size]
             fake_resized = fake[:batch_size]
-            
-            
-            batch_size = imgs_sat.shape[0] # anche imgs_street.shape[0] va bene
-            real = torch.ones((batch_size, 1), device=device)
-            fake = torch.zeros((batch_size, 1), device=device)
 
-            batch_size = imgs_sat.shape[0] # anche imgs_street.shape[0] va bene
-            real = torch.ones((batch_size, 1), device=device)
-            fake = torch.zeros((batch_size, 1), device=device)
             imgs_sat = imgs_sat.to(device)
             imgs_street = imgs_street.to(device)
 
             # **TRAINING DEL GENERATORE**
+            # Training generator
             g_optim.zero_grad()
-            fake_sat, _ = generator(imgs_street)  # Generazione immagine sintetica
-
-            resize_transform = torch.nn.functional.interpolate
-            imgs_street = resize_transform(imgs_street, size=(512, 512), mode='bilinear', align_corners=False)
+            fake_sat, _ = generator(imgs_street)  # Generate synthetic image
             
-            # Concatenazione per il discriminatore
-            real_input = torch.cat((imgs_street[:,:3,:,:], imgs_sat), dim=1)
-            fake_input = torch.cat((imgs_street[:,:3,:,:], fake_sat), dim=1)
-
-            # **Loss del generatore**
-            pred_fake = discriminator(fake_input)  # Output del discriminatore su immagine sintetica
-            g_loss_adv = adversarial_loss(pred_fake, real_resized)  # Il generatore cerca di "ingannare" il discriminatore
-            g_loss_l1 = l1_loss(fake_sat, imgs_sat)  # Perdita L1 per evitare immagini sfocate
-            g_loss = g_loss_adv + lambda_l1 * g_loss_l1  # Combiniamo entrambe le perdite
-
-            g_loss.backward()
-            g_optim.step()
-            mean_g_loss += g_loss.item()
-
-            # Calcoliamo le predizioni del discriminatore
-            pred_real = discriminator(real_input)
+            resize_transform = torch.nn.functional.interpolate
+            imgs_street_resized = resize_transform(imgs_street, size=(512, 512), mode='bilinear', align_corners=False)
+            
+            real_input = torch.cat((imgs_street_resized[:, :3, :, :], imgs_sat), dim=1)
+            fake_input = torch.cat((imgs_street_resized[:, :3, :, :], fake_sat), dim=1)
+            
+            # Generator loss
             pred_fake = discriminator(fake_input)
-
-            # **Loss del discriminatore**
+            g_loss_adv = adversarial_loss(pred_fake, real_resized)
+            g_loss_l1 = l1_loss(fake_sat, imgs_sat)
+            g_loss = g_loss_adv + lambda_l1 * g_loss_l1
+            
+            g_loss.backward(retain_graph=True)  # Retain graph for later use
+            g_optim.step()
+            
+            # Training discriminator
+            d_optim.zero_grad()
+            pred_real = discriminator(real_input)
+            pred_fake = discriminator(fake_input.detach())  # Detach to prevent gradients in generator
+            
             d_loss_real = adversarial_loss(pred_real, real_resized)
             d_loss_fake = adversarial_loss(pred_fake, fake_resized)
-            d_loss = (d_loss_real + d_loss_fake) / 2  # Media delle due perdite
-
+            d_loss = (d_loss_real + d_loss_fake) / 2
+            
             d_loss.backward()
             d_optim.step()
+
             mean_d_loss += d_loss.item()
 
         mean_g_loss /= len(train_loader)
