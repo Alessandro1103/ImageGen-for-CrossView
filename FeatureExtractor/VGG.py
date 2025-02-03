@@ -9,7 +9,7 @@ from blocks import EncoderBlock
 
 
 class VGG(nn.Module):
-    def __init__(self, input_channels=3):
+    def __init__(self):
         super(VGG, self).__init__()
 
         # Define the network using EncoderBlock to modularize the layers
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     batch_size = 3
     street = torch.randn(batch_size, input_channels, 224, 1232)
 
-    model = VGG(input_channels)
+    model = VGG()
     output_of_street = model(street)
 
     assert output_of_street.shape == (batch_size, 1000), f"Unexpected shape for output_img: {output_of_street.shape}"
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     batch_size = 3
     sat = torch.randn(batch_size, input_channels, 224, 1232)
 
-    model = VGG(input_channels)
+    model = VGG()
     output_of_sat = model(sat)
 
     assert output_of_sat.shape == (batch_size, 1000), f"Unexpected shape for output_of_sat: {output_of_sat.shape}"
