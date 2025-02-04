@@ -48,10 +48,6 @@ class JointFeatureLearningNetwork(nn.Module):
         self.sat_vgg = VGG(device=device)
         self.sat_gan_vgg = self.sat_vgg  # Condivide i pesi (weight sharing)
 
-        # Layer lineari per ridurre le feature a 1000 dimensioni
-        self.ground_linear = nn.Linear(53760, 1000).to(device)  # Feature di VGG
-        self.sat_linear = nn.Linear(43008, 1000).to(device)
-        self.sat_gan_linear = self.sat_linear  # Condivide i pesi
 
     def forward(self, x_ground, x_satellite, x_synthetic):
         """Estrae feature da Street View, Satellite reale e Satellite sintetico"""
@@ -60,11 +56,6 @@ class JointFeatureLearningNetwork(nn.Module):
         f_g = self.ground_vgg(x_ground)
         f_a_pos = self.sat_vgg(x_satellite)
         f_a_gen = self.sat_gan_vgg(x_synthetic)
-
-        # Passa le feature nei layer lineari
-        f_g = self.ground_linear(f_g)
-        f_a_pos = self.sat_linear(f_a_pos)
-        f_a_gen = self.sat_gan_linear(f_a_gen)
 
         # Normalizza le feature
         f_g = F.normalize(f_g, p=2, dim=1)
