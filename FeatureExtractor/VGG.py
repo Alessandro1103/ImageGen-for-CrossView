@@ -9,7 +9,7 @@ from blocks import EncoderBlock
 
 
 class VGG(nn.Module):
-    def __init__(self):
+    def __init__(self, input_channels=3):  # Aggiunto input_channels
         super(VGG, self).__init__()
 
         # Define the network using EncoderBlock to modularize the layers
@@ -23,12 +23,10 @@ class VGG(nn.Module):
         
         self.fc = None
 
-        self.inizialize_weights()
+        self.initialize_weights()
 
-    def inizialize_weights(self):
-        """
-        Initializes the weights of each layer using Xavier initialization.
-        """
+    def initialize_weights(self):
+        """Inizializza i pesi con Xavier."""
         for m in self.modules():
             if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
                 nn.init.xavier_uniform_(m.weight)
@@ -36,7 +34,6 @@ class VGG(nn.Module):
                     nn.init.constant_(m.bias, 0)
 
     def forward(self, x):
-        
         batch_size = x.shape[0]
         
         out1 = self.layer1(x)
