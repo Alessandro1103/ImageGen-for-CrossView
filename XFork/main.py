@@ -71,7 +71,7 @@ def main():
         mean_g_loss = 0
         mean_d_loss = 0
 
-        for imgs_sat, imgs_street in tqdm.tqdm(train_loader):
+        for imgs_sat, imgs_street, _ in tqdm.tqdm(train_loader):
             batch_size = imgs_sat.shape[0]
 
             # Aggiorna i tensori reali/fake alla dimensione del batch attuale
