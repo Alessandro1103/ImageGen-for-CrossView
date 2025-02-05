@@ -22,25 +22,23 @@ class Generator(nn.Module):
         self.encoder8 = EncoderBlock(512, 512)      
 
         # Shared Decoder blocks
-        self.decoder1 = DecoderBlock(512, 512, use_dropout=False)
-        self.decoder2 = DecoderBlock(512, 512, use_dropout=False)
-        self.decoder3 = DecoderBlock(512, 512, use_dropout=False)
+        self.decoder1 = DecoderBlock(512, 512)
+        self.decoder2 = DecoderBlock(512, 512)
+        self.decoder3 = DecoderBlock(512, 512)
         self.decoder4 = DecoderBlock(512, 512, use_dropout=False)
         self.decoder5 = DecoderBlock(512, 256, use_dropout=False)
-        self.decoder6 = DecoderBlock(256, 128)
+        self.decoder6 = DecoderBlock(256, 128, use_dropout=False)
         self.decoder7 = DecoderBlock(128, 64, use_dropout=False)
 
         # Independent Decoder for street view image
         self.decoder8_img = nn.Sequential(
             nn.ConvTranspose2d(64, output_channels, kernel_size=4, stride=2, padding=1),
-            nn.Dropout(0.5),
             nn.Tanh()
         )
 
         # Independent Decoder for street view segmentation map
         self.decoder8_seg = nn.Sequential(
             nn.ConvTranspose2d(64, 1, kernel_size=4, stride=2, padding=1),
-            nn.Dropout(0.5),
             nn.Sigmoid()
         )
    
