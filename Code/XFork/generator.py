@@ -19,7 +19,7 @@ class Generator(nn.Module):
         self.encoder5 = EncoderBlock(512, 512)                            
         self.encoder6 = EncoderBlock(512, 512)                            
         self.encoder7 = EncoderBlock(512, 512, stride=(1,2))                            
-        self.encoder8 = EncoderBlock(512, 512, use_bn=False)      
+        self.encoder8 = EncoderBlock(512, 512)      
 
         # Shared Decoder blocks
         self.decoder1 = DecoderBlock(512, 512, use_dropout=False)
