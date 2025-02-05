@@ -5,7 +5,7 @@ import torch.nn as nn
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 
-from blocks import EncoderBlock 
+from blocks import EncoderBlock, DecoderBlock
 
 class Generator(nn.Module):
     def __init__(self, input_channels = 4, output_channels = 3):
@@ -100,4 +100,3 @@ if __name__ == "__main__":
     assert output_seg.shape == (batch_size, 1, 512, 512), f"Unexpected shape for output_seg: {output_seg.shape}"
 
     print("Test passed: Generator outputs correct shapes.")
-
