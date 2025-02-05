@@ -44,8 +44,8 @@ class JointFeatureLearningNetwork(nn.Module):
         super(JointFeatureLearningNetwork, self).__init__()
 
         # Inizializza le tre reti VGG per estrarre le feature
-        self.ground_vgg = VGG(device=device, ground_padding=True)
-        self.sat_vgg = VGG(device=device)
+        self.ground_vgg = VGG(input_channels=4).to(device)
+        self.sat_vgg = VGG(input_channels=4).to(device)
         self.sat_gan_vgg = self.sat_vgg  # Condivide i pesi (weight sharing)
 
 
@@ -53,14 +53,16 @@ class JointFeatureLearningNetwork(nn.Module):
         """Estrae feature da Street View, Satellite reale e Satellite sintetico"""
         
         # Passa le immagini attraverso le VGG
+
+        batch_size = x_ground.shape[0]
+
+        assert x_ground.shape == (batch_size, 4, 224, 1232), f"Expected shape (batch_size, 4, 224, 1232), got {x_ground.shape}"
+        assert x_satellite.shape == (batch_size, 4, 512, 512), f"Expected shape (batch_size, 4, 224, 1232), got {x_satellite.shape}"
+        assert x_synthetic.shape == (batch_size, 4, 512, 512), f"Expected shape (batch_size, 4, 224, 1232), got {x_synthetic.shape}"
+
         f_g = self.ground_vgg(x_ground)
         f_a_pos = self.sat_vgg(x_satellite)
         f_a_gen = self.sat_gan_vgg(x_synthetic)
-
-        # Normalizza le feature
-        f_g = F.normalize(f_g, p=2, dim=1)
-        f_a_pos = F.normalize(f_a_pos, p=2, dim=1)
-        f_a_gen = F.normalize(f_a_gen, p=2, dim=1)
 
         return f_g, f_a_pos, f_a_gen
 
