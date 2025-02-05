@@ -36,4 +36,3 @@ def concatenate_images(image, edgeImg):
     concatenated = np.concatenate((image_np, edgeImg_np), axis=-1)
 
     return concatenated
-
