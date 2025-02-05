@@ -1,6 +1,7 @@
 import os
 import sys
 import torch
+import tqdm
 import torch.nn as nn
 import torch.optim as optim
 import torchvision.transforms as transforms
@@ -10,7 +11,6 @@ from torch.utils.data import DataLoader, random_split
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 
 from dataset import ImageDataset
-from XFork.generator import Generator
 from JFL import *
 
 
@@ -24,16 +24,18 @@ def get_optimizer(model, lr, b1, b2):
 
 def load_generator(model_path, device):
     generator = Generator(input_channels=4, output_channels=3).to(device)
-    generator.load_state_dict(torch.load(model_path, map_location=device))
+    generator.load_state_dict(torch.load(model_path, map_location=device, weights_only=True))
     generator.eval() 
     return generator
 
 def generate_synthetic_image(generator, input_tensor, device):
     input_tensor = input_tensor.to(device)
     with torch.no_grad():
-        fake_satellite, _ = generator(input_tensor)
+        synthetic, synthetic_seg = generator(input_tensor)
         
-    return fake_satellite
+    synthetic_with_segmentation = torch.cat((synthetic, synthetic_seg), dim=1)
+
+    return synthetic_with_segmentation
 
 def get_data_loader(root_folder, batch_size=32, shuffle=True, num_workers=4, split_ratios=(1, 0, 0)):
     """Restituisce i DataLoader per train, val e test."""
@@ -55,23 +57,23 @@ def main(model_path):
 
     device = get_device()
 
-    train_loader, val_loader, test_loader = get_data_loader("./../CVUSA_subset", batch_size=32, shuffle=True, num_workers=4)
+    train_loader, val_loader, test_loader = get_data_loader("/kaggle/input/cvusa-corrected/CVUSA_subset", batch_size=32, shuffle=True, num_workers=4)
 
     model = JointFeatureLearning(device).to(device)
     
     lr, b1, b2 = 0.0002, 0.5, 0.999
+    min_loss = float('inf')
 
     optimizer = get_optimizer(model, lr, b1, b2)
     generator = load_generator(model_path, device)
 
     epochs = 100
 
-    for epoch in range(epochs):
+    for epoch in tqdm.trange(epochs):
 
         total_loss = 0
 
-        
-        for x_sat_correct, x_street, x_sat_wrong in train_loader:
+        for x_sat_correct, x_street, x_sat_wrong in tqdm.tqdm(train_loader):
         
             x_sat_correct = x_sat_correct.to(device)
             x_sat_wrong = x_sat_wrong.to(device)
@@ -81,6 +83,9 @@ def main(model_path):
             x_synthetic = generate_synthetic_image(generator, x_street, device)
 
 
+
+          
+
             optimizer.zero_grad()
             loss = model(x_street, x_sat_correct, x_sat_wrong, x_synthetic)
             loss.backward()
@@ -88,7 +93,12 @@ def main(model_path):
 
             total_loss += loss.item()
 
+        avg_loss = total_loss/len(train_loader)
         print(f"Epoch [{epoch+1}/{epochs}], Loss: {total_loss/len(train_loader):.4f}")
+
+        if avg_loss < min_loss:
+            torch.save(model.state_dict(), 'feature_extractor.pth')
+            print(f"Model saved at epoch {epoch+1}")
 
     print("Training finished")
         
