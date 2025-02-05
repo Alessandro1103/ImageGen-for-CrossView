@@ -11,6 +11,7 @@ from torch.utils.data import DataLoader, random_split
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 
 from dataset import ImageDataset
+from XFork.generator import Generator
 from JFL import *
 
 
@@ -81,10 +82,6 @@ def main(model_path):
             
 
             x_synthetic = generate_synthetic_image(generator, x_street, device)
-
-
-
-          
 
             optimizer.zero_grad()
             loss = model(x_street, x_sat_correct, x_sat_wrong, x_synthetic)
