@@ -100,6 +100,8 @@ def main():
             
             g_loss.backward(retain_graph=True)  # Retain graph for later use
             g_optim.step()
+
+            mean_g_loss += g_loss.item()
             
             # Training discriminator
             d_optim.zero_grad()
