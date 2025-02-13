@@ -10,3 +10,5 @@ CVUSA_subset/
 
 CV/
 CVUSA_subset.zip
+Code/models/generator.pth
+Code/models/discriminator.pth
