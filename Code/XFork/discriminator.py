@@ -1,7 +1,10 @@
-from blocks import EncoderBlock
+import os
+import sys
 import torch
 import torch.nn as nn
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
+from blocks import EncoderBlock
 class Discriminator(nn.Module):
     def __init__(self, input_channels = 6):
         super(Discriminator, self).__init__()

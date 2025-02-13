@@ -84,7 +84,7 @@ def main():
             # **TRAINING DEL GENERATORE**
             # Training generator
             g_optim.zero_grad()
-            fake_sat, _ = generator(imgs_street)  # Generate synthetic image
+            fake_sat, fake_sat_seg = generator(imgs_street)  # Generate synthetic image
             
             resize_transform = torch.nn.functional.interpolate
             imgs_street_resized = resize_transform(imgs_street, size=(512, 512), mode='bilinear', align_corners=False)
@@ -95,6 +95,9 @@ def main():
             # Generator loss
             pred_fake = discriminator(fake_input)
             g_loss_adv = adversarial_loss(pred_fake, real_resized)
+
+            fake_sat = torch.cat((fake_sat, fake_sat_seg), dim=1)  # Concatena lungo i canali
+
             g_loss_l1 = l1_loss(fake_sat, imgs_sat)
             g_loss = g_loss_adv + lambda_l1 * g_loss_l1
             
