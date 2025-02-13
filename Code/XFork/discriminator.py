@@ -10,9 +10,9 @@ class Discriminator(nn.Module):
         self.encoder2 = EncoderBlock(64, 128)
         self.encoder3 = EncoderBlock(128, 256)
         self.encoder4 = EncoderBlock(256, 512)
-        self.encoder5 = EncoderBlock(512, 512)
-        self.encoder6 = EncoderBlock(512, 512)
-        self.encoder7 = EncoderBlock(512, 512)
+        self.encoder5 = EncoderBlock(512, 512, use_dropout=True)
+        self.encoder6 = EncoderBlock(512, 512, use_dropout=True)
+        self.encoder7 = EncoderBlock(512, 512, use_dropout=True)
         
         # Ultimo livello convoluzionale per ridurre la dimensionalità
         self.final_conv = nn.Conv2d(512, 1, kernel_size=4, stride=1, padding=0)

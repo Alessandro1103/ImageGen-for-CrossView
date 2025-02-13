@@ -3,7 +3,7 @@ import torch.nn as nn
 
 
 class EncoderBlock(nn.Module):
-    def __init__(self, in_channels, out_channels, stride=2, padding=1, use_bn=True, use_dropout=False):
+    def __init__(self, in_channels, out_channels, stride=2, padding=1, use_bn=False, use_dropout=False):
         super(EncoderBlock, self).__init__()
         layers = [
             nn.Conv2d(in_channels, out_channels, kernel_size=4, stride=stride, padding=padding),

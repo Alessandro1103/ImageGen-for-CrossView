@@ -1,34 +1,31 @@
-import os
-import sys
+from blocks import EncoderBlock, DecoderBlock
 import torch
 import torch.nn as nn
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
-
-from blocks import EncoderBlock, DecoderBlock
 
 class Generator(nn.Module):
     def __init__(self, input_channels = 4, output_channels = 3):
         super(Generator, self).__init__()
 
         # Encoder
-        self.encoder1 = EncoderBlock(input_channels, 64, use_bn=False)
-        self.encoder2 = EncoderBlock(64, 128)                             
-        self.encoder3 = EncoderBlock(128, 256)                            
-        self.encoder4 = EncoderBlock(256, 512)                            
-        self.encoder5 = EncoderBlock(512, 512)                            
-        self.encoder6 = EncoderBlock(512, 512)                            
-        self.encoder7 = EncoderBlock(512, 512, stride=(1,2))                            
-        self.encoder8 = EncoderBlock(512, 512)      
+        self.encoder1 = EncoderBlock(input_channels, 64)
+        self.encoder2 = EncoderBlock(64, 128, use_bn=True)                             
+        self.encoder3 = EncoderBlock(128, 256, use_bn=True)                            
+        self.encoder4 = EncoderBlock(256, 512, use_bn=True)                            
+        self.encoder5 = EncoderBlock(512, 512, use_bn=True)                            
+        self.encoder6 = EncoderBlock(512, 512, use_bn=True)                            
+        self.encoder7 = EncoderBlock(512, 512, stride=(1,2), use_bn=True)                            
+        self.encoder8 = EncoderBlock(512, 512, use_bn=True)      
 
         # Shared Decoder blocks
-        self.decoder1 = DecoderBlock(512, 512)
-        self.decoder2 = DecoderBlock(512, 512)
-        self.decoder3 = DecoderBlock(512, 512)
-        self.decoder4 = DecoderBlock(512, 512, use_dropout=False)
-        self.decoder5 = DecoderBlock(512, 256, use_dropout=False)
-        self.decoder6 = DecoderBlock(256, 128, use_dropout=False)
-        self.decoder7 = DecoderBlock(128, 64, use_dropout=False)
+        self.decoder1 = DecoderBlock(512, 512, use_bn=True, use_dropout=True)
+        self.decoder2 = DecoderBlock(512, 512, use_bn=True, use_dropout=True)
+        self.decoder3 = DecoderBlock(512, 512, use_bn=True, use_dropout=True)
+        self.decoder4 = DecoderBlock(512, 512, use_bn=True)
+        self.decoder5 = DecoderBlock(512, 256, use_bn=True)
+        self.decoder6 = DecoderBlock(256, 128, use_bn=True)
+
+        self.decoder7_img = DecoderBlock(128, 64, use_bn=True)
+        self.decoder7_seg = DecoderBlock(128, 64, use_bn=True)
 
         # Independent Decoder for street view image
         self.decoder8_img = nn.Sequential(
@@ -46,8 +43,6 @@ class Generator(nn.Module):
     def forward(self, x):
 
         batch_size = x.shape[0]
-
-        assert x.shape == (batch_size, 4, 224, 1232), f"Unexpected shape for the image: {x.shape}"
 
         # Encoder forward
         e1 = self.encoder1(x)
@@ -73,11 +68,12 @@ class Generator(nn.Module):
         d4 = self.decoder4(d3)
         d5 = self.decoder5(d4)
         d6 = self.decoder6(d5)
-        d7 = self.decoder7(d6)
 
-        # Independent decoders forward
-        streetview_img = self.decoder8_img(d7)
-        streetview_seg = self.decoder8_seg(d7)
+        d7_img = self.decoder7_img(d6)
+        d7_seg = self.decoder7_seg(d6)
+
+        streetview_img = self.decoder8_img(d7_img)
+        streetview_seg = self.decoder8_seg(d7_seg)
 
         assert streetview_img.shape == (batch_size, 3, 512, 512), f"Unexpected shape for streetview_img: {streetview_img.shape}"
         assert streetview_seg.shape == (batch_size, 1, 512, 512), f"Unexpected shape for streetview_seg: {streetview_seg.shape}"
