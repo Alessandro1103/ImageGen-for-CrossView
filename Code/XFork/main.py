@@ -8,8 +8,6 @@ import os
 import cv2
 import sys
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
-
 from generator import Generator
 from discriminator import Discriminator
 from dataset import ImageDataset
@@ -42,7 +40,7 @@ def main():
     torch.autograd.set_detect_anomaly(True)
 
     device = get_device()
-    train_loader, val_loader, test_loader = get_data_loader("./../CVUSA_subset", batch_size=32, shuffle=True, num_workers=4)
+    train_loader, val_loader, test_loader = get_data_loader("/kaggle/input/cvusa-corrected/CVUSA_subset", batch_size=32, shuffle=True, num_workers=4)
 
     generator = Generator(input_channels=4, output_channels=3).to(device)
     discriminator = Discriminator(input_channels=6).to(device)
@@ -84,21 +82,24 @@ def main():
             # **TRAINING DEL GENERATORE**
             # Training generator
             g_optim.zero_grad()
-            fake_sat, _ = generator(imgs_street)  # Generate synthetic image
+            fake_sat, fake_sat_seg = generator(imgs_street)  # Generate synthetic image
             
             resize_transform = torch.nn.functional.interpolate
             imgs_street_resized = resize_transform(imgs_street, size=(512, 512), mode='bilinear', align_corners=False)
             
-            real_input = torch.cat((imgs_street_resized[:, :3, :, :], imgs_sat), dim=1)
-            fake_input = torch.cat((imgs_street_resized[:, :3, :, :], fake_sat), dim=1)
+            real_input = torch.cat((imgs_street_resized[:, :3, :, :], imgs_sat[:,:3,:,:]), dim=1)
+            fake_input = torch.cat((imgs_street_resized[:, :3, :, :], fake_sat[:,:3,:,:]), dim=1)
             
             # Generator loss
             pred_fake = discriminator(fake_input)
             g_loss_adv = adversarial_loss(pred_fake, real_resized)
+
+            fake_sat = torch.cat((fake_sat, fake_sat_seg), dim=1)  # Concatena lungo i canali
+
             g_loss_l1 = l1_loss(fake_sat, imgs_sat)
             g_loss = g_loss_adv + lambda_l1 * g_loss_l1
             
-            g_loss.backward(retain_graph=True)  # Retain graph for later use
+            g_loss.backward()  # Retain graph for later use
             g_optim.step()
 
             mean_g_loss += g_loss.item()
