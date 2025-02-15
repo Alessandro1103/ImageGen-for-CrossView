@@ -62,7 +62,7 @@ def main(model_path="./models/generator.pth"):
     with torch.no_grad():
         x_sat_artificial, _ = generator(x_street)  # 👈 Prendi solo la prima uscita (immagine generata)
 
-    print(f"Dimensioni immagini: x_sat_correct={x_sat_correct.shape}, x_street={x_street.shape}, x_sat_artificial={x_sat_artificial.shape}")
+    print(f"Dimensioni immagini: x_sat_correct={x_sat_correct.shape}, x_sat_artificial={x_sat_artificial.shape}")
 
     # Correzione: rimuovi la dimensione batch selezionando direttamente l'elemento 0
     x_sat_correct = x_sat_correct[0]
@@ -74,6 +74,8 @@ def main(model_path="./models/generator.pth"):
     x_sat_correct = x_sat_correct.permute(1, 2, 0).cpu().numpy()
     x_sat_artificial = x_sat_artificial.permute(1, 2, 0).cpu().numpy()
 
+    print(f"Dimensioni immagini (post conversione): x_sat_correct={x_sat_correct[:,:,:3].shape}, x_sat_artificial={x_sat_artificial[:,:,:3].shape}")
+
     # Plot dei risultati
     plt.figure(figsize=(10, 5))
 
@@ -83,7 +85,7 @@ def main(model_path="./models/generator.pth"):
     plt.axis("off")
 
     plt.subplot(1, 2, 2)
-    plt.imshow(x_sat_artificial)  # Ora sarà un tensore corretto
+    plt.imshow(x_sat_artificial[:, :, :3])  # Ora sarà un tensore corretto
     plt.title("Satellite Image artificial")
     plt.axis("off")
 
