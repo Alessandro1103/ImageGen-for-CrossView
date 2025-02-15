@@ -39,10 +39,10 @@ ImageGen-for-CrossView/
 ```
 
 ## Dataset
-In my project, due to limited resources, I have reduced the CVUSA dataset. The original dataset can be found here: https://mvrl.cse.wustl.edu/datasets/cvusa/ with an appropriate request. Otherwise a reduced version can be found https://pro1944191.github.io/SemanticAlignNet/
+In my project, due to limited resources, I have reduced the CVUSA dataset. The original dataset can be found here: {https://mvrl.cse.wustl.edu/datasets/cvusa/}(Complete Dataset) with an appropriate request. Otherwise a reduced version can be found {https://pro1944191.github.io/SemanticAlignNet/}(Reduced Dataset)
 
 ## How to run
-The paper said that the GAN is pretrained, but here there is a code designed to replicate the training. So first of all we need to run the GAN, and there is the appropriate main in the XFork folder, ```Code/XFork.py```:
+The paper said that the GAN is pretrained, but here there is a code designed to replicate the training. So first of all we need to run the GAN, and there is the appropriate main in the XFork folder, ```Code/XFork/main.py```:
 Once the GAN is trained the next step would be to evaluate the results using the JointFeatureLearning algorithm. As above the main is in the appropriate folder, ```Code/JointFeatureLearning/main.py```. 
 
 ## Installation
