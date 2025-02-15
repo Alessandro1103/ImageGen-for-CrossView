@@ -1,37 +1,58 @@
-# Cross-view-image-matching
-(trovare un altro titolo)
+# Generation of Aerial Images from Ground-Level Views for Cross-View Matching
 
 ## Abstract
-
-cv-project/
-│
-├── cvusa-set/
+```
+ImageGen-for-CrossView/
+│── CVUSA_subset/
 │   ├── bingmap/
-│   ├── polarmap/
-│   ├── segmap/
 │   ├── streetview/
-│   ├── train-19zl.csv
-│   └── val-19zl.csv
 │
-├── preprocessing/
-│   ├── preprocess_images.py
+│── FeatureExtractor/
+│   ├── ├── VGG.py
 │
-├── training/
-│   ├── train_model.py
+│── JoinFeatureLearning/
+│   ├── JFL.py
+│   ├── main.py
 │
-├── evaluation/
-│   ├── evaluate_model.py
+│── models/
 │
-├── models/
-│   └── model.h5
+├── XFork/
+│   ├── discriminator.py
+│   ├── generator.py
+│   ├── main.py
+├
+├── blocks.py
+├── dataset.py
+├── edge_Concatenate.py
+├── eval.py
+├── meansOfImages.py
 │
-└── notebooks/
-    ├── Data_Preparation.ipynb
-    ├── Model_Training.ipynb
-    └── Model_Evaluation.ipynb
-
+│── Presentation/
+│   ├── Computer_Vision_Presentation/
+│
+│── Sources/
+│   ├── 1904.11045v2.pdf
+│   ├── Regmi_Cross-View_Image_Sy...
+│
+│── .gitignore
+│── README.md
+```
 
 ## Dataset
-## Code
+In my project, due to limited resources, I have reduced the CVUSA dataset. The original dataset can be found here: https://mvrl.cse.wustl.edu/datasets/cvusa/ with an appropriate request. Otherwise a reduced version can be found https://pro1944191.github.io/SemanticAlignNet/
+
+## How to run
+The paper said that the GAN is pretrained, but here there is a code designed to replicate the training. So first of all we need to run the GAN, and there is the appropriate main in the XFork folder, ```Code/XFork.py```:
+Once the GAN is trained the next step would be to evaluate the results using the JointFeatureLearning algorithm. As above the main is in the appropriate folder, ```Code/JointFeatureLearning/main.py```. 
+
+## Installation
+1. Clone
+```
+https://github.com/Alessandro1103/ImageGen-for-CrossView.git
+```
+2. Intall requirements
+```
+pip install -r <Folder>/ImageGen-for-CrossView/requirements.txt
+```
 ## Author
 Alessandro De Luca
