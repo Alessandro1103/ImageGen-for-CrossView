@@ -54,6 +54,9 @@ The paper states that the GAN is pretrained, but in this project, a codebase has
    ```
    Code/JoinFeatureLearning/main.py
    ```
+Actually, I have trained the models via [Kaggle](https://www.kaggle.com/) and the results can be found here:
+- [Gan Train](https://www.kaggle.com/code/alessandro1103/primo-train-gan)
+- [JointFeatureLearning Train](https://www.kaggle.com/code/alessandro1103/notebookdc51fdc810)
 
 ## Installation
 1. Clone the repository:
