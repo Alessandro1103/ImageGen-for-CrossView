@@ -8,7 +8,7 @@ ImageGen-for-CrossView/
 │   ├── streetview/
 │
 │── FeatureExtractor/
-│   ├── ├── VGG.py
+│   ├── VGG.py
 │
 │── JoinFeatureLearning/
 │   ├── JFL.py
@@ -16,11 +16,11 @@ ImageGen-for-CrossView/
 │
 │── models/
 │
-├── XFork/
+│── XFork/
 │   ├── discriminator.py
 │   ├── generator.py
 │   ├── main.py
-├
+│
 ├── blocks.py
 ├── dataset.py
 ├── edge_Concatenate.py
@@ -37,22 +37,34 @@ ImageGen-for-CrossView/
 │── .gitignore
 │── README.md
 ```
+## Description
+This project aims to replicate "Bridging the Domain Gap for Ground-to-Aerial Image Matching" by Krishna Regmi and Mubarak Shah. The chosen structure to be replicated focuses on the GAN and Joint Feature Learning. The interest in this paper arises from the usefulness of this research in improving image representation for applications such as localization, navigation, and mapping.
 
 ## Dataset
-In my project, due to limited resources, I have reduced the CVUSA dataset. The original dataset can be found here: [Complete Dataset](https://mvrl.cse.wustl.edu/datasets/cvusa/) with an appropriate request. Otherwise a reduced version can be found [Reduced Dataset](https://pro1944191.github.io/SemanticAlignNet/)
+In this project, due to limited resources, the CVUSA dataset has been reduced. The original dataset can be found here: [Complete Dataset](https://mvrl.cse.wustl.edu/datasets/cvusa/) with an appropriate request. Alternatively, a reduced version can be found here: [Reduced Dataset](https://pro1944191.github.io/SemanticAlignNet/).
 
-## How to run
-The paper said that the GAN is pretrained, but here there is a code designed to replicate the training. So first of all we need to run the GAN, and there is the appropriate main in the XFork folder, ```Code/XFork/main.py```:
-Once the GAN is trained the next step would be to evaluate the results using the JointFeatureLearning algorithm. As above the main is in the appropriate folder, ```Code/JointFeatureLearning/main.py```. 
+## How to Run
+The paper states that the GAN is pretrained, but in this project, a codebase has been developed to replicate the training process. 
+
+1. First, the GAN needs to be trained using the appropriate main script located in the XFork folder:
+   ```
+   Code/XFork/main.py
+   ```
+2. Once the GAN is trained, the next step is to evaluate the results using the Joint Feature Learning algorithm. The main script for this step is found in the following folder:
+   ```
+   Code/JoinFeatureLearning/main.py
+   ```
 
 ## Installation
-1. Clone
-```
-https://github.com/Alessandro1103/ImageGen-for-CrossView.git
-```
-2. Intall requirements
-```
-pip install -r <Folder>/ImageGen-for-CrossView/requirements.txt
-```
+1. Clone the repository:
+   ```
+   git clone https://github.com/Alessandro1103/ImageGen-for-CrossView.git
+   ```
+2. Install the required dependencies:
+   ```
+   pip install -r <Folder>/ImageGen-for-CrossView/requirements.txt
+   ```
+
 ## Author
 Alessandro De Luca
+
